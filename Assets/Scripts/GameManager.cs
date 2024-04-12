@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -24,8 +25,15 @@ public class GameManager : MonoBehaviour
     // texto do dinheiro exista para funcionar. Então deve ser iniciado com certeza antes de todos
     private void Awake()
     {
+        CarregarJogo();
+        if (ExisteSave() == true) 
+        {
+            GameManager.custoClicador = (int)Math.Floor(GameManager.custoClicador * 1.25f);
+            GameManager.custoMultiplicador = (int)Math.Floor(GameManager.custoMultiplicador * 1.25f); 
+        }
         // Pega o texto de dinheiro que está na tela
         textoDinheiro = GameObject.Find("Canvas").transform.Find("Dinheiro").GetComponent<TextMeshProUGUI>();
+        AutoSave();
     }
 
     // A variável de dinheiro poderia ser alterada diretamente, porém ao usar esta função,
@@ -34,6 +42,44 @@ public class GameManager : MonoBehaviour
     {
         GameManager.dinheiro += valor;
         textoDinheiro.text = "$ " + GameManager.dinheiro.ToString();
+    }
+
+    //----------------------------------------------------------
+    public static void SalvarJogo() 
+    {
+        PlayerPrefs.SetInt("dinheiro",dinheiro);
+        PlayerPrefs.SetInt("multiplicador", multiplicadores);
+        PlayerPrefs.SetInt("clicadores", clicadores);
+        PlayerPrefs.Save();
+        Debug.Log("Jogo salvo com sucesso!!");
+    }
+    public void CarregarJogo() 
+    {
+        if (ExisteSave() == false) 
+        {
+            return;
+        }
+        GameManager.dinheiro = PlayerPrefs.GetInt("dinheiro");
+        GameManager.multiplicadores = PlayerPrefs.GetInt("multiplicador");
+        GameManager.clicadores = PlayerPrefs.GetInt("clicadores");
+        Debug.Log("Jogo carregado com sucesso!!");
+
+    }
+    bool ExisteSave() 
+    {
+        if (PlayerPrefs.HasKey("dinheiro") == true) 
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public void AutoSave() 
+    {
+        SalvarJogo();
+        Invoke("AutoSave", 5);
     }
 
 }
